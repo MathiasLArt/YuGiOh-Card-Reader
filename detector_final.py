@@ -36,17 +36,17 @@ def preprocess_image(args):
 
     # Grayscale -> Blurring -> Canny thresholding -> Dilation
     gray_img = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)
-    if args.visualize:
-        cv2.imshow("tweak", gray_img)
-        cv2.waitKey(0)
+    #if args.visualize:
+    #    cv2.imshow("tweak", gray_img)
+    #    cv2.waitKey(0)
     blur = cv2.GaussianBlur(gray_img, (9, 9), 0)
-    if args.visualize:
-        cv2.imshow("tweak", blur)
-        cv2.waitKey(0)
+    #if args.visualize:
+    #    cv2.imshow("tweak", blur)
+    #    cv2.waitKey(0)
     thresh = cv2.Canny(blur, 50, 100)
-    if args.visualize:
-        cv2.imshow("tweak", thresh)
-        cv2.waitKey(0)
+    #if args.visualize:
+    #    cv2.imshow("tweak", thresh)
+     #   cv2.waitKey(0)
     dilated = cv2.dilate(thresh, np.ones((11, 11), dtype=np.int8))
     if args.visualize:
         cv2.imshow("tweak", dilated)
@@ -54,47 +54,68 @@ def preprocess_image(args):
 
     return img, dilated,img_resized, coef_x, coef_y
 
-def extract_text_from_card(image, dilated,img_resized, coef_x, coef_y, visualize=False):
-    # Extract text from the card image
-
+def extract_text_from_card(image, dilated, img_resized, coef_x, coef_y, visualize=False):
+    # Step 1: Detect contours in the dilated image
     contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+    # Initialize a list to store quadrilateral contours
     tbd = list()
+
+    # Step 2: Identify and store quadrilateral contours
     for c in contours:
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.05 * peri, True)
         if len(approx) == 4:
             tbd.append(approx)
 
+    # Initialize a list to store new contours with associated text
     new_contours = list()
 
+    # Step 3: Process each selected quadrilateral contour
     for c in tbd:
+        hull = cv2.convexHull(c)
         x, y, w, h = cv2.boundingRect(c)
 
-        if (h > 100 and w > 100):
-            warped = four_point_transform(img_resized, c.reshape((4, 2)) )
+
+        # Filter out large quadrilateral contours
+        if (h > 300 and w > 300):
+
+            rect = cv2.rectangle(img_resized, (x, y), (x + w, y + h), (255, 255, 0), 3)
+
+            if visualize:
+                cv2.imshow("contours", cv2.resize(rect, (1000, 1000)))
+                cv2.waitKey(0)
+            # Step 4: Warp the card region to a rectangle
+            warped = four_point_transform(img_resized, c.reshape((4, 2)))
             warped_w = warped.shape[0]
             warped_h = warped.shape[1]
+
+            if visualize:
+                cv2.imshow("warped", cv2.resize(warped, (1000, 1000)))
+                cv2.waitKey(0)
+
             # Determine angle for deskewing
             angle = determine_skew(cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY))
 
+            # Step 5: Deskew the region (if needed)
             if angle != 0 and angle is not None:
                 warped = rotate(warped, angle, resize=True)
 
+            # Step 6: Crop a specific region of the warped image
             cropped = warped[int(warped.shape[1] // 16):int(warped.shape[1] // 7.7), int(warped.shape[0] * 0.05):int(warped.shape[0] * 0.73)]
-            text_roi = cv2.resize(cropped, (1000, 70))
+            text_roi = cv2.resize(cropped, (1000, 90))
 
             if visualize:
                 cv2.imshow("extracted name", text_roi)
                 cv2.waitKey(0)
-
+            # Step 7: Use OCR to extract text from the resized image
             text_roi = Image.fromarray((text_roi * 255).astype(np.uint8))
-
             query = pytesseract.image_to_string(text_roi, config="--psm 7")
 
             if query:
                 new_contours.append([c, query])
 
+    # Return a list of new contours with associated text
     return new_contours
 
 def find_matching_cards(card_names, new_contours, min_similarity=80):
