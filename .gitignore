@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 #project specific
-/core/cards
+/core/card_downloader/cards
 /test_examples
 # C extensions
 *.so

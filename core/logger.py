@@ -19,7 +19,7 @@ def setup_logger():
                         fmt='%(levelname)s: %(message)s')
 
     # Create a file handler to write logs to a log.txt file in the same folder (with mode 'w')
-    file_handler = logging.FileHandler('log.txt', mode='w')
+    file_handler = logging.FileHandler('.\\log.txt', mode='w')
 
     # Configure the log format for the file handler (customize as needed)
     file_formatter = logging.Formatter(
