@@ -19,7 +19,7 @@
             "name": "Python: Get Images",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\core\\card_downloader\\card_downloader.py",
+            "program": "${workspaceFolder}\\core\\card_downloader\\main.py",
             "console": "integratedTerminal"
         }
     ]
