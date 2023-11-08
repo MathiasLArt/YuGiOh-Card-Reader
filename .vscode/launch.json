@@ -5,10 +5,10 @@
             "name": "Python: Detector Final",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/detector_final.py",
+            "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
             "args": [
-                "--image", 
+                "--image",
                 "E:\\_Github\\YuGiOh-System\\test_examples\\two_cards_2.jpeg",
                 "--tesseract",
                 "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
@@ -16,11 +16,15 @@
             ]
         },
         {
-            "name": "Python: Get Images",
+            "name": "Python: Run Tests",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\core\\card_downloader\\main.py",
-            "console": "integratedTerminal"
+            "program": "${workspaceFolder}/test.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "E:\\_Github\\YuGiOh-System\\.venv"
+            },
         }
     ]
 }
