@@ -1,13 +1,18 @@
 import argparse
 import pytesseract
 import os
+
 from core.card_processing import CardProcessor
 from core.data_loader import DataLoader
+from core.webcam import Webcam
 
 
 def main(args):
     # Load .php file contaiting all the necesairy card info.
     card_processor = CardProcessor()
+    # webcam = Webcam()
+    # webcam.show_webcam()
+    # webcam.release()
 
     card_data = DataLoader.load_card_data(file="./core/cardinfo.php")
 
@@ -25,7 +30,7 @@ def main(args):
     )
 
     card_list = card_processor.find_matching_cards(
-        card_names=card_data, text_contours=new_contours, min_similarity=70
+        card_names=card_data, text_contours=new_contours, min_similarity=51
     )
 
     card_processor.draw_card_boxes(img, card_list, coef_x, coef_y)

@@ -9,10 +9,10 @@
             "console": "integratedTerminal",
             "args": [
                 "--image",
-                "E:\\_Github\\YuGiOh-System\\test_examples\\two_cards_2.jpeg",
+                "E:\\_Github\\YuGiOh-System\\test_examples\\three_cards_dark_light.jpeg",
                 "--tesseract",
                 "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
-                //"--visualize"
+                "--visualize"
             ]
         },
         {
